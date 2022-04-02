@@ -1,0 +1,27 @@
+{
+  "name": "meet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/adarsh-chakraborty/meet.git"
+  },
+  "author": "Adarsh Chakraborty",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/adarsh-chakraborty/meet/issues"
+  },
+  "homepage": "https://github.com/adarsh-chakraborty/meet#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "socket.io": "^4.4.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
