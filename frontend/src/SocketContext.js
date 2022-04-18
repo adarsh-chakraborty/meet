@@ -1,28 +1,28 @@
 import React, { createContext, useState, useRef, useEffect } from 'react';
-import { connect, io } from 'socket.io-client';
+import { io } from 'socket.io-client';
 import Peer from 'simple-peer';
 
 const SocketContext = createContext();
 const socket = io('http://localhost:5000');
 
 const ContextProvider = ({ children }) => {
+  const [me, setMe] = useState('');
+  const [call, setCall] = useState({});
+  const [stream, setStream] = useState(null);
+  const [name, setName] = useState('');
+  const [callEnded, setCallEnded] = useState(false);
+  const [callAccepted, setCallAccepted] = useState(false);
+
+  const myVideo = useRef();
+  const userVideo = useRef();
+  const connectionRef = useRef();
+
   useEffect(() => {
-    const [me, setMe] = useState('');
-    const [call, setCall] = useState({});
-    const [stream, setStream] = useState(null);
-    const [name, setName] = useState('');
-    const [callEnded, setCallEnded] = useState(false);
-    const [callAccepted, setCallAccepted] = useState(false);
-
-    const myVideo = useRef();
-    const userVideo = useRef();
-    const connectionRef = useRef();
-
     // Get permissions
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((currentStream) => {
-        setStream(stream);
+        setStream(currentStream);
         myVideo.current.srcObject = currentStream;
       });
 
@@ -91,7 +91,7 @@ const ContextProvider = ({ children }) => {
 
   const leaveCall = () => {
     setCallEnded(true);
-    connectRef.current.destroy();
+    connectionRef.current.destroy();
     window.location.reload();
   };
 
