@@ -10,7 +10,11 @@ function App() {
   const peerInstance = useRef(null);
 
   useEffect(() => {
-    const peer = new Peer();
+    const peer = new Peer({
+      host: 'localhost',
+      port: '9000',
+      path: '/api'
+    });
 
     peer.on('open', (id) => {
       console.log('My Peer ID is: ', id);
