@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import Peer from 'peerjs';
+import io from 'socket.io-client';
 
 function App() {
   const [peerId, setPeerId] = useState('');

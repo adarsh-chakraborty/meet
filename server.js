@@ -2,18 +2,22 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { ExpressPeerServer } = require('peer');
+const { Server } = require('socket.io');
 
 const app = express();
 const PORT = process.env.PORT || 9000;
 
+const homeRoutes = require('./routes/homeRoutes');
 app.use(cors());
-app.get('/', (req, res, next) => res.send('Hello world!'));
+app.use(homeRoutes);
+// other routes
 
 const server = http.createServer(app);
 const peerServer = ExpressPeerServer(server, {
   debug: true,
   path: '/'
 });
+const io = new Server(server);
 
 peerServer.on('connection', (client) => {
   console.log('A new client joined!');
@@ -23,6 +27,10 @@ peerServer.on('disconnect', (client) => {
 });
 
 app.use('/api', peerServer);
+
+io.on('connection', (socket) => {
+  console.log('[SOCKET.IO] A user connected');
+});
 
 server.listen(PORT, () => {
   console.log('Server is listening on PORT: ', PORT);
