@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import Peer from 'peerjs';
 import io from 'socket.io-client';
 
+import Pages from './Pages/Pages';
+
 function App() {
   const [peerId, setPeerId] = useState('');
   const [remotePeerId, setRemotePeerId] = useState('');
@@ -65,6 +67,7 @@ function App() {
 
   return (
     <div>
+      <Pages />
       <h2>{peerId}</h2>
       <input
         type="text"
