@@ -1,6 +1,8 @@
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+
 const { ExpressPeerServer } = require('peer');
 const { Server } = require('socket.io');
 
@@ -8,8 +10,11 @@ const app = express();
 const PORT = process.env.PORT || 9000;
 
 const homeRoutes = require('./routes/homeRoutes');
+const authRoutes = require('./routes/authRoutes');
+
 app.use(cors());
 app.use(homeRoutes);
+app.use('/auth', authRoutes);
 // other routes
 
 const server = http.createServer(app);
