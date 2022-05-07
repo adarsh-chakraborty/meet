@@ -12,6 +12,7 @@ const PORT = process.env.PORT || 9000;
 const homeRoutes = require('./routes/homeRoutes');
 const authRoutes = require('./routes/authRoutes');
 
+app.use(express.json());
 app.use(cors());
 app.use(homeRoutes);
 app.use('/auth', authRoutes);
@@ -22,6 +23,7 @@ const peerServer = ExpressPeerServer(server, {
   debug: true,
   path: '/'
 });
+
 const io = new Server(server);
 
 peerServer.on('connection', (client) => {

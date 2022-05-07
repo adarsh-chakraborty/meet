@@ -1,12 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
 import Peer from 'peerjs';
 import io from 'socket.io-client';
+import { useLocation } from 'react-router-dom';
 
 import Pages from './Pages';
 
 function Call() {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const partnerId = queryParams.get('partner');
+  console.log(partnerId);
   const [peerId, setPeerId] = useState('');
-  const [remotePeerId, setRemotePeerId] = useState('');
+  const [remotePeerId, setRemotePeerId] = useState(partnerId);
 
   const remoteVideoRef = useRef(null);
   const localVideoRef = useRef(null);
