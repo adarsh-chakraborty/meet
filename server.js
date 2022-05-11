@@ -1,7 +1,11 @@
+if (!process.env.HEROKU) {
+  console.log('Develop Environment setting up...');
+  require('dotenv').config();
+}
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
-const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 const { ExpressPeerServer } = require('peer');
 const { Server } = require('socket.io');
@@ -39,6 +43,12 @@ io.on('connection', (socket) => {
   console.log('[SOCKET.IO] A user connected');
 });
 
-server.listen(PORT, () => {
-  console.log('Server is listening on PORT: ', PORT);
+mongoose.connect(process.env.MONGODB_URI, (err) => {
+  if (err) {
+    console.log('Error connecting to mongodb');
+    return;
+  }
+  server.listen(PORT, () => {
+    console.log('Server is listening on PORT: ', PORT);
+  });
 });
