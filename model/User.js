@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema({
   },
   refreshToken: {
     type: String
+  },
+  peerId: {
+    type: String,
+    unique: true
   }
 });
 

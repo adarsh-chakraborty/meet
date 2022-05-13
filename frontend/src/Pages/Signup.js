@@ -1,9 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Signup = () => {
+  const navigate = useNavigate();
+  const [username, setUserName] = useState('');
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState(null);
+
+  const registerUser = async (e) => {
+    e.preventDefault();
+    const result = await axios.post('/auth/register', {
+      username,
+      password,
+      email
+    });
+    if (result.status === 201) {
+      setMessage('Your account is created, you can login now!');
+      setTimeout(() => navigate('/login'), 3000);
+    }
+  };
+
   return (
     <div className="bg-[#ADB5BD] w-1/2 flex flex-col mt-4 rounded-lg shadow-md ">
       <h2 className="font-Inter text-3xl font-bold text-center mt-24">
+        {message && (
+          <div className="bg-emerald-300 h-1/2 mx-8 my-2 flex flex-col mt-4 rounded-lg shadow-md ">
+            <div className="flex text-emerald-800 font-Inter font-semibold text-2xl p-4 justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>{message}</span>
+            </div>
+          </div>
+        )}
         Create an account
       </h2>
       <div className="flex flex-col md:flex-row items-center md:items-stretch justify-center">
@@ -11,7 +53,7 @@ const Signup = () => {
           <img src="/logo.png" width="240px" />
         </div>
         <div className="mt-8">
-          <form className="flex flex-col gap-2">
+          <form className="flex flex-col gap-2" onSubmit={registerUser}>
             <label class="relative text-gray-400 focus-within:text-gray-600 block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -29,10 +71,12 @@ const Signup = () => {
               </svg>
 
               <input
-                type="email"
-                name="email"
-                id="email"
+                type="text"
+                name="username"
+                id="username"
                 placeholder="Choose an Username"
+                value={username}
+                onChange={(e) => setUserName(e.target.value)}
                 class="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
               />
             </label>
@@ -57,6 +101,8 @@ const Signup = () => {
                 name="email"
                 id="email"
                 placeholder="Your E-mail address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 class="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
               />
             </label>
@@ -77,10 +123,12 @@ const Signup = () => {
               </svg>
 
               <input
-                type="email"
-                name="email"
-                id="email"
+                type="password"
+                name="password"
+                id="password"
                 placeholder="A Strong Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 class="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
               />
             </label>

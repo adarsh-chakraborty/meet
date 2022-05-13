@@ -23,9 +23,11 @@ const postRegister = async (req, res) => {
   }
 
   try {
-    const checkUser = await User.findOne({ username });
+    const checkUser = await User.findOne({ $or: [{ username }, { email }] });
     if (checkUser) {
-      return res.status(400).json({ error: 'Username already registered.' });
+      return res
+        .status(400)
+        .json({ error: 'Username or email already registered.' });
     }
 
     const user = await User.create({
