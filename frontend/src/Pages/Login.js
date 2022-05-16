@@ -1,6 +1,19 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [username, setUserName] = useState('');
+  const [password, setPassword] = useState('');
+
+  const loginUser = async (e) => {
+    e.preventDefault();
+    const res = await axios.post('/auth/login', { username, password });
+    if (res.status === 202) {
+      navigate('/');
+    }
+  };
   return (
     <div className="bg-[#ADB5BD] w-1/2 flex flex-col mt-4 rounded-lg shadow-md ">
       <h2 className="font-Inter text-3xl font-bold text-center mt-24">Login</h2>
@@ -9,7 +22,7 @@ const Login = () => {
           <img src="/logo.png" width="240px" />
         </div>
         <div className="mt-8">
-          <form className="flex flex-col gap-2">
+          <form className="flex flex-col gap-2" onSubmit={loginUser}>
             <label class="relative text-gray-400 focus-within:text-gray-600 block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -27,10 +40,12 @@ const Login = () => {
               </svg>
 
               <input
-                type="email"
-                name="email"
-                id="email"
+                type="text"
+                name="username"
+                id="username"
                 placeholder="Your Username"
+                value={username}
+                onChange={(e) => setUserName(e.target.value)}
                 class="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
               />
             </label>
@@ -51,19 +66,21 @@ const Login = () => {
               </svg>
 
               <input
-                type="email"
-                name="email"
-                id="email"
+                type="password"
+                name="password"
+                id="password"
                 placeholder="Password.."
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 class="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
               />
             </label>
             <button className="bg-[#343A40] shadow-md rounded-sm p-2 text-[#E9ECEF] hover:bg-[#212529] transition-colors duration-200">
               Login
             </button>
-            <span className="text-stone-800 text-right pr-2 pt-2">
+            <Link to={'/reset'} className="text-stone-800 text-right pr-2 pt-2">
               Forgot password?
-            </span>
+            </Link>
           </form>
         </div>
       </div>

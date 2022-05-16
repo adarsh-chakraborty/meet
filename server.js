@@ -5,6 +5,7 @@ if (!process.env.HEROKU) {
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
 const { ExpressPeerServer } = require('peer');
@@ -17,7 +18,9 @@ const homeRoutes = require('./routes/homeRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors());
+
 app.use(homeRoutes);
 app.use('/auth', authRoutes);
 // other routes
