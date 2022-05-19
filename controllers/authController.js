@@ -27,7 +27,7 @@ const postLogin = async (req, res) => {
     return res.status(404).json({ error: 'User does not exists.' });
   }
 
-  user.comparePassword(password, (err, isMatch) => {
+  user.comparePassword(password, async (err, isMatch) => {
     if (err) {
       return res
         .status(403)
@@ -38,6 +38,9 @@ const postLogin = async (req, res) => {
       const payload = { userId: user._id.toString() };
       const accessToken = generateAccessToken(payload);
       const refreshToken = generateRefreshToken(payload);
+
+      const result = await User.findByIdAndUpdate(user._id, { refreshToken });
+      console.log(result);
       res.cookie('rt', refreshToken, {
         maxAge: 1000 * 60 * 60 * 24,
         httpOnly: true
@@ -105,10 +108,41 @@ const getUsernameExistance = async (req, res) => {
   res.json({ available: true, message: 'Username is available' });
 };
 
+const postRefreshAccessToken = async (req, res) => {
+  const { rt } = req.cookies;
+  console.log(rt);
+  if (!rt) {
+    return res.status(400).json({ error: 'Token missing.' });
+  }
+
+  const decodedPayload = verifyRefreshToken(rt);
+  if (!decodedPayload) {
+    res.clearCookie('rt');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  // cookie verified but do we still recognize it?
+  // Get refreshToken that we have
+  const user = await User.findById(decodedPayload.userId);
+  // Check if refreshToken is same
+  if (rt === user.refreshToken) {
+    // Token is same but is our token expired?
+    const decoded2 = verifyRefreshToken(user.refreshToken);
+    if (!decoded2) {
+      res.clearCookie('rt');
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    // OK Valid Token on both end, Give a new acess Token
+    const newToken = generateAccessToken({ userId: user._id });
+    return res.status(202).json({ token: newToken });
+  }
+  return res.json({ error: 'expired token' });
+};
+
 module.exports = {
   getRefreshToken,
   postLogout,
   postLogin,
   postRegister,
-  getUsernameExistance
+  getUsernameExistance,
+  postRefreshAccessToken
 };
