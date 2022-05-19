@@ -43,7 +43,8 @@ const postLogin = async (req, res) => {
       console.log(result);
       res.cookie('rt', refreshToken, {
         maxAge: 1000 * 60 * 60 * 24,
-        httpOnly: true
+        httpOnly: true,
+        signed: true
       });
       return res.status(202).json({ message: 'Logged in', token: accessToken });
     }
@@ -109,7 +110,7 @@ const getUsernameExistance = async (req, res) => {
 };
 
 const postRefreshAccessToken = async (req, res) => {
-  const { rt } = req.cookies;
+  const rt = req.signedCookies?.rt?.trim?.();
   console.log(rt);
   if (!rt) {
     return res.status(400).json({ error: 'Token missing.' });

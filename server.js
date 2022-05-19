@@ -18,7 +18,7 @@ const homeRoutes = require('./routes/homeRoutes');
 const authRoutes = require('./routes/authRoutes');
 
 app.use(express.json());
-app.use(cookieParser());
+app.use(cookieParser(process.env.SIGN_COOKIE_SECRET));
 app.use(cors());
 
 app.use(homeRoutes);
