@@ -9,9 +9,13 @@ const Login = () => {
 
   const loginUser = async (e) => {
     e.preventDefault();
-    const res = await axios.post('/auth/login', { username, password });
-    if (res.status === 202) {
-      navigate('/');
+    try {
+      const res = await axios.post('/auth/login', { username, password });
+      if (res.status === 202) {
+        navigate('/');
+      }
+    } catch (err) {
+      console.log(err.data);
     }
   };
   return (
@@ -23,7 +27,7 @@ const Login = () => {
         </div>
         <div className="mt-8">
           <form className="flex flex-col gap-2" onSubmit={loginUser}>
-            <label class="relative text-gray-400 focus-within:text-gray-600 block">
+            <label className="relative text-gray-400 focus-within:text-gray-600 block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="pointer-events-none w-8 h-8 absolute top-1/2 transform -translate-y-1/2 left-3"
@@ -46,10 +50,10 @@ const Login = () => {
                 placeholder="Your Username"
                 value={username}
                 onChange={(e) => setUserName(e.target.value)}
-                class="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
+                className="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
               />
             </label>
-            <label class="relative text-gray-400 focus-within:text-gray-600 block">
+            <label className="relative text-gray-400 focus-within:text-gray-600 block">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="pointer-events-none w-8 h-8 absolute top-1/2 transform -translate-y-1/2 left-3"
@@ -72,7 +76,7 @@ const Login = () => {
                 placeholder="Password.."
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                class="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
+                className="form-input border border-gray-900 py-3 px-4 bg-white placeholder-gray-400 text-gray-500 appearance-none w-full block pl-14 focus:outline-none"
               />
             </label>
             <button className="bg-[#343A40] shadow-md rounded-sm p-2 text-[#E9ECEF] hover:bg-[#212529] transition-colors duration-200">

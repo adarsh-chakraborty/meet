@@ -30,7 +30,7 @@ const postLogin = async (req, res) => {
   user.comparePassword(password, async (err, isMatch) => {
     if (err) {
       return res
-        .status(403)
+        .status(401)
         .json({ error: 'Invalid username, password combination.' });
     }
     console.log(isMatch);
@@ -113,7 +113,7 @@ const postRefreshAccessToken = async (req, res) => {
   const rt = req.signedCookies?.rt?.trim?.();
   console.log(rt);
   if (!rt) {
-    return res.status(400).json({ error: 'Token missing.' });
+    return res.status(401).json({ error: 'unauthorized' });
   }
 
   const decodedPayload = verifyRefreshToken(rt);
