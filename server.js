@@ -17,6 +17,11 @@ const PORT = process.env.PORT || 9000;
 const homeRoutes = require('./routes/homeRoutes');
 const authRoutes = require('./routes/authRoutes');
 
+const { verifyAccessToken } = require('./util/auth');
+
+const User = require('./model/User');
+const onlineUsers = require('./util/onlineUsers');
+
 app.use(express.json());
 app.use(cookieParser(process.env.SIGN_COOKIE_SECRET));
 app.use(cors());
@@ -33,11 +38,22 @@ const peerServer = ExpressPeerServer(server, {
 
 const io = new Server(server);
 
-peerServer.on('connection', (client) => {
+peerServer.on('connection', async (client) => {
+  const decoded = verifyAccessToken(client.token);
+  if (!decoded) return client.socket.close();
   console.log('A new client joined!');
+
+  onlineUsers[client.id] = decoded.userId;
+  await User.findByIdAndUpdate(decoded.userId, { peerId: client.id });
+  console.log(onlineUsers);
 });
-peerServer.on('disconnect', (client) => {
+peerServer.on('disconnect', async (client) => {
   console.log('Someone disconnected!');
+  // which user disconnect ?
+  const userId = onlineUsers[client.id];
+  delete onlineUsers[client.id];
+  await User.findByIdAndUpdate(userId, { peerId: null });
+  console.log(onlineUsers);
 });
 
 app.use('/api', peerServer);

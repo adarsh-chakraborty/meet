@@ -6,6 +6,8 @@ const {
   verifyAccessToken
 } = require('../util/auth');
 
+const onlineUsers = require('../util/onlineUsers');
+
 const getRefreshToken = (req, res) => {
   res.send('Web Server is running fine.');
 };
@@ -139,11 +141,25 @@ const postRefreshAccessToken = async (req, res) => {
   return res.json({ error: 'expired token' });
 };
 
+const postUserNameForPeerId = async (req, res) => {
+  const { username } = req.body;
+  if (!username) return res.status(400).json({ error: 'Username is required' });
+  const user = await User.findOne({ username });
+  if (!user) {
+    return res.status(404).json({ error: 'User not found' });
+  }
+  if (!user.peerId) {
+    return res.status(409).json({ error: 'User is not online.' });
+  }
+  res.json({ peerId: user.peerId });
+};
+
 module.exports = {
   getRefreshToken,
   postLogout,
   postLogin,
   postRegister,
   getUsernameExistance,
-  postRefreshAccessToken
+  postRefreshAccessToken,
+  postUserNameForPeerId
 };

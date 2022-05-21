@@ -19,38 +19,7 @@ function Call() {
   const localVideoRef = useRef(null);
   const peerInstance = useRef(null);
 
-  useEffect(() => {
-    const peer = new Peer({
-      host: 'localhost',
-      port: '9000',
-      path: '/api'
-    });
-
-    peer.on('open', (id) => {
-      console.log('My Peer ID is: ', id);
-      setPeerId(id);
-    });
-
-    // Answering the call, set our video and remote video
-    peer.on('call', (call) => {
-      navigator.mediaDevices.getUserMedia({ video: true }, (mediaStream) => {
-        localVideoRef.current.srcObject = mediaStream;
-        localVideoRef.current.play();
-
-        call.answer(mediaStream);
-        call.on('stream', (remoteStream) => {
-          remoteVideoRef.current.srcObject = remoteStream;
-          remoteVideoRef.current.play();
-        });
-      });
-    });
-
-    peerInstance.current = peer;
-
-    if (remotePeerId) {
-      callUser(remotePeerId);
-    }
-  }, []);
+  useEffect(() => {}, []);
 
   const callUser = (remotePeerId) => {
     // Setting our video and remote video when we sending a call.
