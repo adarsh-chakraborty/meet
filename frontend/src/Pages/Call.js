@@ -8,24 +8,45 @@ import AppContext from '../context/appContext';
 function Call() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { peer } = useContext(AppContext);
+  const { peer, call, setReceivingCall } = useContext(AppContext);
   const queryParams = new URLSearchParams(location.search);
   const partnerId = queryParams.get('partner');
 
   const [error, setError] = useState(null);
   const [peerId, setPeerId] = useState('');
-  const [remotePeerId, setRemotePeerId] = useState();
+  const [isCallAccepted, setIsCallAccepted] = useState(false);
 
   const remoteVideoRef = useRef(null);
   const localVideoRef = useRef(null);
   const peerInstance = useRef(null);
 
+  console.log(location.state);
+
   useEffect(() => {
     if (!location.state) return navigate('/', { replace: true });
-    const remoteIdPeer = location.state.peerId;
-    setRemotePeerId(remoteIdPeer);
-    callUser(remoteIdPeer);
+    if (location.state.task === 'makeCall') {
+      const remoteIdPeer = location.state.peerId;
+      callUser(remoteIdPeer);
+    }
+    if (location.state.task === 'acceptCall') {
+      answerCall();
+    }
   }, []);
+
+  const answerCall = () => {
+    console.log('Answering call');
+    setReceivingCall(false);
+    navigator.mediaDevices.getUserMedia({ video: true }).then((mediaStream) => {
+      localVideoRef.current.srcObject = mediaStream;
+      localVideoRef.current.play();
+
+      call.answer(mediaStream);
+      call.on('stream', (remoteStream) => {
+        remoteVideoRef.current.srcObject = remoteStream;
+        remoteVideoRef.current.play();
+      });
+    });
+  };
 
   const callUser = (remoteID) => {
     // Setting our video and remote video when we sending a call.
@@ -44,6 +65,7 @@ function Call() {
         // On Receiving a call, show it on screen.
         // Will only invoke if accepted.
         call.on('stream', (remoteStream) => {
+          setIsCallAccepted(true);
           // show stream in video element or canvas.
           remoteVideoRef.current.srcObject = remoteStream;
           remoteVideoRef.current.play();
@@ -82,6 +104,11 @@ function Call() {
         <video ref={localVideoRef} />
       </div>
       <div>
+        {!isCallAccepted && (
+          <div className="font-Inter text-xl font-semibold">
+            Please wait till {partnerId} accepts your call...
+          </div>
+        )}
         <video ref={remoteVideoRef} />
       </div>
     </div>

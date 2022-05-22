@@ -5,7 +5,8 @@ import {
   SET_ACCESS_TOKEN,
   SET_PEER_ID,
   SET_PEER,
-  SET_RECEIVING_CALL
+  SET_RECEIVING_CALL,
+  SET_CALL_OBJECT
 } from './constants';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -18,7 +19,9 @@ const defaultState = {
   peerId: null,
   peer: null,
   isReceivingCall: false,
-  setAccessToken: () => {}
+  call: null,
+  setAccessToken: () => {},
+  setReceivingCall: () => {}
 };
 
 const appContextReducer = (state, action) => {
@@ -37,6 +40,10 @@ const appContextReducer = (state, action) => {
     }
     case SET_RECEIVING_CALL: {
       return { ...state, isReceivingCall: action.payload };
+    }
+
+    case SET_CALL_OBJECT: {
+      return { ...state, call: action.payload };
     }
 
     default:
@@ -84,17 +91,7 @@ const ContextProvider = (props) => {
     peer.on('call', (call) => {
       console.log('Receiving a call');
       setReceivingCall(true);
-      // navigator.mediaDevices.getUserMedia({ video: true }, (mediaStream) => {
-      //   localVideoRef.current.srcObject = mediaStream;
-      //   localVideoRef.current.play();
-
-      //   call.answer(mediaStream);
-      //   call.on('stream', (remoteStream) => {
-      //     remoteVideoRef.current.srcObject = remoteStream;
-      //     remoteVideoRef.current.play();
-      //   });
-      // });
-      // navigate('/call', { state: 'receiving call' });
+      setCall(call);
     });
 
     setPeer(peer);
@@ -116,14 +113,20 @@ const ContextProvider = (props) => {
   const setReceivingCall = (payload) => {
     stateActionDispatch({ type: SET_RECEIVING_CALL, payload });
   };
+
+  const setCall = (payload) => {
+    stateActionDispatch({ type: SET_CALL_OBJECT, payload });
+  };
   // variables & function pointers
   const appContext = {
     token: state.token,
     isLoggedIn: state.isLoggedIn,
     peerId: state.peerId,
     peer: state.peer,
+    call: state.call,
     isReceivingCall: state.isReceivingCall,
-    setAccessToken
+    setAccessToken,
+    setReceivingCall
   };
 
   return (

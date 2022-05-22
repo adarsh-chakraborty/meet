@@ -5,8 +5,10 @@ const defaultContext = {
   isLoggedIn: 'pending',
   peerId: null,
   peer: null,
+  call: null,
   isReceivingCall: false,
-  setAccessToken: () => {}
+  setAccessToken: () => {},
+  setReceivingCall: () => {}
 };
 
 const AppContext = React.createContext(defaultContext);

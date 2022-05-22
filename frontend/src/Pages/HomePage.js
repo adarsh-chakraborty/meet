@@ -10,7 +10,9 @@ const HomePage = () => {
   const getPeerId = async () => {
     try {
       const result = await axios.post('/auth/peerid', { username: partnerId });
-      navigate('/call?parterId=' + partnerId, { state: result.data });
+      navigate('/call?partner=' + partnerId, {
+        state: { task: 'makeCall', ...result.data }
+      });
     } catch (err) {
       console.log(err);
       setError(err?.response?.data?.error ?? `Unable to reach the partner.`);

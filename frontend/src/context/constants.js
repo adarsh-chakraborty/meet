@@ -5,3 +5,4 @@ export const SET_PEER = 'SEETPEER';
 export const ANSWER_CALL = 'ANSWERCALL';
 export const HANG_UP = 'HANG_UP_CALL';
 export const SET_RECEIVING_CALL = 'SET_RECEIVING_CALL';
+export const SET_CALL_OBJECT = 'SEtCALLOBJ';
