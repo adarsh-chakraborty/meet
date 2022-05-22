@@ -1,4 +1,3 @@
-import Container from './Components/Container';
 import Pages from './Pages/Pages';
 import AppContext from './context/appContext';
 import { useContext } from 'react';
@@ -7,12 +6,14 @@ import { useNavigate } from 'react-router-dom';
 
 function App() {
   const navigate = useNavigate();
-  const { isReceivingCall } = useContext(AppContext);
+  const { isReceivingCall, setReceivingCall } = useContext(AppContext);
 
   const acceptCall = () => {
+    setReceivingCall(false);
     navigate('/call', { state: { task: 'acceptCall' } });
   };
   const rejectCall = () => {
+    setReceivingCall(false);
     console.log('Call Rejected!!!');
   };
 

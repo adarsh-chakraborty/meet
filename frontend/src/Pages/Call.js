@@ -1,6 +1,4 @@
-import { useEffect, useState, useRef, useContext } from 'react';
-import Peer from 'peerjs';
-import io from 'socket.io-client';
+import { useEffect, useState, useCallback, useRef, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import AppContext from '../context/appContext';
@@ -8,21 +6,68 @@ import AppContext from '../context/appContext';
 function Call() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { peer, call, setReceivingCall } = useContext(AppContext);
+  const { peer, call } = useContext(AppContext);
   const queryParams = new URLSearchParams(location.search);
   const partnerId = queryParams.get('partner');
 
   const [error, setError] = useState(null);
-  const [peerId, setPeerId] = useState('');
   const [isCallAccepted, setIsCallAccepted] = useState(false);
 
   const remoteVideoRef = useRef(null);
   const localVideoRef = useRef(null);
-  const peerInstance = useRef(null);
 
   console.log(location.state);
 
+  const answerCall = useCallback(() => {
+    console.log('Answering call');
+    navigator.mediaDevices.getUserMedia({ video: true }).then((mediaStream) => {
+      localVideoRef.current.srcObject = mediaStream;
+      localVideoRef.current.play();
+
+      call.answer(mediaStream);
+
+      call.on('stream', (remoteStream) => {
+        remoteVideoRef.current.srcObject = remoteStream;
+        remoteVideoRef.current.play();
+      });
+    });
+  }, [call]);
+
+  const callUser = useCallback(
+    (remoteID) => {
+      // Setting our video and remote video when we sending a call.
+      console.log('Calling ', remoteID);
+      let now = Date.now();
+
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((mediaStream) => {
+          localVideoRef.current.srcObject = mediaStream;
+          localVideoRef.current.play();
+
+          // Sending call request
+          const call = peer.call(remoteID, mediaStream);
+
+          // On Receiving a call, show it on screen.
+          // Will only invoke if accepted.
+          call.on('stream', (remoteStream) => {
+            setIsCallAccepted(true);
+            // show stream in video element or canvas.
+            remoteVideoRef.current.srcObject = remoteStream;
+            remoteVideoRef.current.play();
+          });
+        })
+        .catch(function (err) {
+          console.log(err);
+          setError(true);
+          console.log('GUM failed with error, time diff: ', Date.now() - now);
+        });
+    },
+    [peer]
+  );
+
   useEffect(() => {
+    console.log('USE EFFECT RAN');
     if (!location.state) return navigate('/', { replace: true });
     if (location.state.task === 'makeCall') {
       const remoteIdPeer = location.state.peerId;
@@ -31,52 +76,7 @@ function Call() {
     if (location.state.task === 'acceptCall') {
       answerCall();
     }
-  }, []);
-
-  const answerCall = () => {
-    console.log('Answering call');
-    setReceivingCall(false);
-    navigator.mediaDevices.getUserMedia({ video: true }).then((mediaStream) => {
-      localVideoRef.current.srcObject = mediaStream;
-      localVideoRef.current.play();
-
-      call.answer(mediaStream);
-      call.on('stream', (remoteStream) => {
-        remoteVideoRef.current.srcObject = remoteStream;
-        remoteVideoRef.current.play();
-      });
-    });
-  };
-
-  const callUser = (remoteID) => {
-    // Setting our video and remote video when we sending a call.
-    console.log('Calling ', remoteID);
-    let now = Date.now();
-
-    navigator.mediaDevices
-      .getUserMedia({ video: true })
-      .then((mediaStream) => {
-        localVideoRef.current.srcObject = mediaStream;
-        localVideoRef.current.play();
-
-        // Sending call request
-        const call = peer.call(remoteID, mediaStream);
-
-        // On Receiving a call, show it on screen.
-        // Will only invoke if accepted.
-        call.on('stream', (remoteStream) => {
-          setIsCallAccepted(true);
-          // show stream in video element or canvas.
-          remoteVideoRef.current.srcObject = remoteStream;
-          remoteVideoRef.current.play();
-        });
-      })
-      .catch(function (err) {
-        console.log(err);
-        setError(true);
-        console.log('GUM failed with error, time diff: ', Date.now() - now);
-      });
-  };
+  }, [location.state, callUser, answerCall, navigate]);
 
   if (error) {
     return (
@@ -104,7 +104,7 @@ function Call() {
         <video ref={localVideoRef} />
       </div>
       <div>
-        {!isCallAccepted && (
+        {location.state.task === 'makeCall' && !isCallAccepted && (
           <div className="font-Inter text-xl font-semibold">
             Please wait till {partnerId} accepts your call...
           </div>
