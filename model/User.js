@@ -20,8 +20,7 @@ const userSchema = new mongoose.Schema({
     type: String
   },
   peerId: {
-    type: String,
-    unique: true
+    type: String
   }
 });
 

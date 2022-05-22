@@ -4,6 +4,8 @@ const defaultContext = {
   token: null,
   isLoggedIn: 'pending',
   peerId: null,
+  peer: null,
+  isReceivingCall: false,
   setAccessToken: () => {}
 };
 

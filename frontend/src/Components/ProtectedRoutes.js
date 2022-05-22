@@ -5,7 +5,6 @@ import Splash from '../Pages/Splash';
 
 const ProtectedRoutes = () => {
   const { isLoggedIn } = useContext(AppContext);
-  console.log(isLoggedIn);
 
   if (isLoggedIn === 'pending') {
     return <Splash />;

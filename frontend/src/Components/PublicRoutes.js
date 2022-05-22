@@ -11,9 +11,6 @@ const PublicRoutes = ({ children }) => {
     return <Splash />;
   }
 
-  console.log('Hiii', isLoggedIn);
-  console.log(Outlet);
-
   return isLoggedIn ? <Navigate to="/" replace /> : <Outlet />;
 };
 

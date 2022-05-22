@@ -39,14 +39,17 @@ const peerServer = ExpressPeerServer(server, {
 const io = new Server(server);
 
 peerServer.on('connection', async (client) => {
-  const decoded = verifyAccessToken(client.token);
-  if (!decoded) return client.socket.close();
   console.log('A new client joined!');
-
+  const decoded = verifyAccessToken(client.token);
+  if (!decoded) {
+    console.log('AUTH FAILED', decoded);
+    return client.socket.close();
+  }
   onlineUsers[client.id] = decoded.userId;
   await User.findByIdAndUpdate(decoded.userId, { peerId: client.id });
   console.log(onlineUsers);
 });
+
 peerServer.on('disconnect', async (client) => {
   console.log('Someone disconnected!');
   // which user disconnect ?

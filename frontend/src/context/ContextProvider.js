@@ -1,7 +1,12 @@
 import AppContext from './appContext';
 
 import { useReducer, useEffect, useRef } from 'react';
-import { SET_ACCESS_TOKEN, SET_PEER_ID } from './constants';
+import {
+  SET_ACCESS_TOKEN,
+  SET_PEER_ID,
+  SET_PEER,
+  SET_RECEIVING_CALL
+} from './constants';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Peer from 'peerjs';
@@ -11,6 +16,8 @@ const defaultState = {
   token: null,
   isLoggedIn: 'pending',
   peerId: null,
+  peer: null,
+  isReceivingCall: false,
   setAccessToken: () => {}
 };
 
@@ -25,6 +32,12 @@ const appContextReducer = (state, action) => {
       }
       return { ...state, token: null, isLoggedIn: false };
     }
+    case SET_PEER: {
+      return { ...state, peer: action.payload };
+    }
+    case SET_RECEIVING_CALL: {
+      return { ...state, isReceivingCall: action.payload };
+    }
 
     default:
       return state;
@@ -36,7 +49,6 @@ const ContextProvider = (props) => {
     appContextReducer,
     defaultState
   );
-  const peerInstance = useRef(null);
 
   // do async tasks
   useEffect(() => {
@@ -69,33 +81,48 @@ const ContextProvider = (props) => {
     });
 
     // Answering the call, set our video and remote video
-    // peer.on('call', (call) => {
-    //   navigator.mediaDevices.getUserMedia({ video: true }, (mediaStream) => {
-    //     localVideoRef.current.srcObject = mediaStream;
-    //     localVideoRef.current.play();
+    peer.on('call', (call) => {
+      console.log('Receiving a call');
+      setReceivingCall(true);
+      // navigator.mediaDevices.getUserMedia({ video: true }, (mediaStream) => {
+      //   localVideoRef.current.srcObject = mediaStream;
+      //   localVideoRef.current.play();
 
-    //     call.answer(mediaStream);
-    //     call.on('stream', (remoteStream) => {
-    //       remoteVideoRef.current.srcObject = remoteStream;
-    //       remoteVideoRef.current.play();
-    //     });
-    //   });
-    // });
+      //   call.answer(mediaStream);
+      //   call.on('stream', (remoteStream) => {
+      //     remoteVideoRef.current.srcObject = remoteStream;
+      //     remoteVideoRef.current.play();
+      //   });
+      // });
+      // navigate('/call', { state: 'receiving call' });
+    });
 
-    peerInstance.current = peer;
+    setPeer(peer);
   }, [state.token]);
 
   const setPeerId = async (payload) => {
     stateActionDispatch({ type: SET_PEER_ID, payload });
   };
 
+  const setPeer = async (payload) => {
+    console.log('SETTING PEER', payload);
+    stateActionDispatch({ type: SET_PEER, payload });
+  };
+
   const setAccessToken = (payload) => {
     stateActionDispatch({ type: SET_ACCESS_TOKEN, payload });
+  };
+
+  const setReceivingCall = (payload) => {
+    stateActionDispatch({ type: SET_RECEIVING_CALL, payload });
   };
   // variables & function pointers
   const appContext = {
     token: state.token,
     isLoggedIn: state.isLoggedIn,
+    peerId: state.peerId,
+    peer: state.peer,
+    isReceivingCall: state.isReceivingCall,
     setAccessToken
   };
 

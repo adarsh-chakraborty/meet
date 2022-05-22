@@ -1,36 +1,48 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useContext } from 'react';
 import Peer from 'peerjs';
 import io from 'socket.io-client';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-import Pages from './Pages';
+import AppContext from '../context/appContext';
 
 function Call() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { peer } = useContext(AppContext);
   const queryParams = new URLSearchParams(location.search);
   const partnerId = queryParams.get('partner');
-  console.log(partnerId);
 
   const [error, setError] = useState(null);
   const [peerId, setPeerId] = useState('');
-  const [remotePeerId, setRemotePeerId] = useState(partnerId);
+  const [remotePeerId, setRemotePeerId] = useState();
 
   const remoteVideoRef = useRef(null);
   const localVideoRef = useRef(null);
   const peerInstance = useRef(null);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (!location.state) return navigate('/', { replace: true });
+    const remoteIdPeer = location.state.peerId;
+    setRemotePeerId(remoteIdPeer);
+    callUser(remoteIdPeer);
+  }, []);
 
-  const callUser = (remotePeerId) => {
+  const callUser = (remoteID) => {
     // Setting our video and remote video when we sending a call.
+    console.log('Calling ', remoteID);
     let now = Date.now();
+
     navigator.mediaDevices
-      .getUserMedia({ video: true }, (mediaStream) => {
+      .getUserMedia({ video: true })
+      .then((mediaStream) => {
         localVideoRef.current.srcObject = mediaStream;
         localVideoRef.current.play();
-        const call = peerInstance.current.call(remotePeerId, mediaStream);
-        // accept the call
 
+        // Sending call request
+        const call = peer.call(remoteID, mediaStream);
+
+        // On Receiving a call, show it on screen.
+        // Will only invoke if accepted.
         call.on('stream', (remoteStream) => {
           // show stream in video element or canvas.
           remoteVideoRef.current.srcObject = remoteStream;
@@ -38,6 +50,7 @@ function Call() {
         });
       })
       .catch(function (err) {
+        console.log(err);
         setError(true);
         console.log('GUM failed with error, time diff: ', Date.now() - now);
       });
@@ -65,13 +78,6 @@ function Call() {
 
   return (
     <div>
-      <h2>{peerId}</h2>
-      <input
-        type="text"
-        value={remotePeerId}
-        onChange={(e) => setRemotePeerId(e.target.value)}
-      />
-      <button onClick={() => callUser(remotePeerId)}>Call</button>
       <div>
         <video ref={localVideoRef} />
       </div>

@@ -13,7 +13,6 @@ import PublicRoutes from '../Components/PublicRoutes';
 
 const Pages = () => {
   const { isLoggedIn } = useContext(AppContext);
-  console.log('BAAWW', isLoggedIn);
   return (
     <Routes>
       {/* Public Routes  */}

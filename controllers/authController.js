@@ -1,3 +1,4 @@
+const { exists } = require('../model/User');
 const User = require('../model/User');
 const {
   generateAccessToken,
@@ -126,6 +127,9 @@ const postRefreshAccessToken = async (req, res) => {
   // cookie verified but do we still recognize it?
   // Get refreshToken that we have
   const user = await User.findById(decodedPayload.userId);
+  console.log(user, decodedPayload);
+  if (!user?.refreshToken)
+    return res.status(401).json({ error: 'you are not logged in.' });
   // Check if refreshToken is same
   if (rt === user.refreshToken) {
     // Token is same but is our token expired?
@@ -138,7 +142,7 @@ const postRefreshAccessToken = async (req, res) => {
     const newToken = generateAccessToken({ userId: user._id });
     return res.status(202).json({ token: newToken });
   }
-  return res.json({ error: 'expired token' });
+  return res.status(401).json({ error: 'you are not logged in.' });
 };
 
 const postUserNameForPeerId = async (req, res) => {
@@ -146,7 +150,7 @@ const postUserNameForPeerId = async (req, res) => {
   if (!username) return res.status(400).json({ error: 'Username is required' });
   const user = await User.findOne({ username });
   if (!user) {
-    return res.status(404).json({ error: 'User not found' });
+    return res.status(404).json({ error: `That user doesn't exists` });
   }
   if (!user.peerId) {
     return res.status(409).json({ error: 'User is not online.' });
